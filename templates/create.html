@@ -1,0 +1,56 @@
+{% extends "layout.html" %}
+
+{% block body %}
+<div class="container">
+	<div class="card" style="margin-top: 45px;">
+		<div class="card-body">
+			<input onclick="buttonClicked('red')" type="checkbox" checked data-toggle="toggle" data-size="lg" id="redToggle" data-onstyle="danger">
+			<input onclick="buttonClicked('blue')" type="checkbox" checked data-toggle="toggle" data-size="lg" id="blueToggle">
+		</div>
+	</div>
+    <img id="redImage" src="" width="240px" height="240px"> &nbsp;
+    <img id="blueImage" src="" width="240px" height="240px">
+
+</div>
+{% endblock %}
+
+{%block scripts %}
+<script src="//cdnjs.cloudflare.com/ajax/libs/socket.io/2.2.0/socket.io.js" integrity="sha256-yr4fRk/GU1ehYJPAs8P4JlTgu0Hdsp4ZKrx8bDEDC3I=" crossorigin="anonymous"></script>
+<script type="text/javascript" charset="utf-8">
+
+    if($("#redToggle").prop('checked')) {
+        $("#redImage").prop("src", "https://www.w3schools.com/js/pic_bulbon.gif")
+        $("#redImage").prop("class", "bg-danger")
+    } else {
+        $("#redImage").prop("src", "https://www.w3schools.com/js/pic_bulboff.gif")
+        $("#redImage").prop("class", "")
+    }
+
+    if($("#blueToggle").prop('checked')) {
+        $("#blueImage").prop("src", "https://www.w3schools.com/js/pic_bulbon.gif")
+        $("#redImage").prop("class", "bg-primary")
+    } else {
+        $("#blueImage").prop("src", "https://www.w3schools.com/js/pic_bulboff.gif")
+        $("#redImage").prop("class", "")
+    }
+    var socket = io();
+    socket.on('connect', function() {
+
+        socket.emit('led-state', {type: 'red', value: true});
+    });
+
+    $('#redToggle').change(function() {
+      var state = $(this).prop('checked')
+      socket.emit('led-state', {type: 'red', value: state})
+    });
+
+    $('#blueToggle').change(function() {
+      var state = $(this).prop('checked')
+      socket.emit('led-state', {type: 'blue', value: state})
+    });
+
+    function buttonClicked(type) {
+    	console.log("button clicked: ", type);
+    }
+</script>
+{%endblock%}

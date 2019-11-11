@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>Hello, HASS Group</title>
+	<link rel="stylesheet" href="{{ url_for('static', filename='css/bootstrap.min.css') }}">
+</head>
+<body class="container">
+<h1 class="text-center"><strong>{{ text }}</strong></h1>
+<ul id="ul" class="list-group">
+
+</ul>
+<div class="input-group">
+	<input class="form-control" onkeyup="if (event.which == 13) send_message()" id="message" placeholder="Type your message here...">
+	<div class="input-group-append">
+		<button onclick="send_message()" class="btn btn-success">Send</button>
+	</div>
+</div>
+<script type="text/javascript" src="{{ url_for('static', filename='js/socket.io.js') }}"></script>
+<script type="text/javascript" src="{{ url_for('static', filename='js/jquery.min.js') }}"></script>
+<script type="text/javascript">
+	var socket = io();
+	var count = 1;
+	socket.on('connect', function () {
+		console.log("Connected to socket server")
+		
+		socket.on("welcome", function(mssg) {
+			console.log("message received: ", mssg)
+		});
+		socket.on('message', function (mssg) {
+			$('#ul').append(`<li class="list-group-item">${mssg}</li>`);
+		});
+	});
+	$('#btn').on('click', function() {
+		socket.emit('clicked', "button clicked: " + count);
+		count++
+	});
+	function send_message() {
+		var messageField = $('#message');
+		if (socket && message != '') {
+			socket.emit('new message', messageField.val());
+			messageField.val("");
+		}
+	}
+	
+</script>
+</body>
+</html>

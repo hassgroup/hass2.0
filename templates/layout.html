@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>The HASS</title>
+	<link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/css/materialize.min.css">
+</head>
+<body>
+	<div class="navbar-fixed">
+		<nav class="black">
+			<div class="nav-wrapper">
+				<a style="min-width: 900px!important;" href="#" class="brand-logo center truncate">HASS | Foretia Foundation | Stem Prize 2019</a>
+			</div>
+		</nav>
+	</div>
+
+	{% block body %}
+	<div class="container">
+		<h5 class="alert alert-warning">
+			No content added yet!
+		</h5>
+	</div>
+	{% endblock %}
+	<script type="text/javascript" src="{{ url_for('static', filename='js/jquery.min.js') }} "></script>
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/js/materialize.min.js"></script>
+
+	{% block scripts %}{%endblock%}
+</body>
+</html>
