@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/bootstrap.min.css') }}">
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons"
+          rel="stylesheet">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/font-awesome.min.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/custom.css') }}">
+</head>
+<body>
+{#<nav class="navbar navbar-fixed-top navbar-expand-lg navbar-dark bg-dark">
+    <a class="navbar-brand text-center" href="#">HASS | Foretia Foundation</a>
+
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+    </div>
+</nav>
+<div class="container">
+    {% block body %}{% endblock %}
+</div>#}
+<div class="d-flex" id="wrapper">
+
+    <!-- Sidebar -->
+    <div class="bg-light border-right" id="sidebar-wrapper">
+        <div class="sidebar-heading text-center">HASS</div>
+        <div class="list-group list-group-flush">
+            <a href="{{ url_for('dashboard') }}" class="list-group-item list-group-item-action bg-light">
+                <span>Dashboard</span>
+            </a>
+            <a href="{{ url_for('lights') }}" class="list-group-item list-group-item-action bg-light">
+                Lights
+            </a>
+            <a href="#" class="list-group-item list-group-item-action bg-light">
+                Air Condition
+            </a>
+            <a href="#" class="list-group-item list-group-item-action bg-light">
+                Gate
+            </a>
+            <a href="#" class="list-group-item list-group-item-action bg-light">
+                Camera
+            </a>
+            <a href="#" class="list-group-item list-group-item-action bg-light">
+                Temperature
+            </a>
+            <a href="{{ url_for('logout') }}" class="list-group-item list-group-item-action bg-light">
+                Logout
+            </a>
+        </div>
+    </div>
+    <!-- /#sidebar-wrapper -->
+
+    <!-- Page Content -->
+    <div id="page-content-wrapper">
+
+        <nav class="navbar navbar-fixed-top navbar-expand-lg navbar-dark bg-dark">
+            <a id="menu-toggle" class="navbar-brand text-center" href="#">STEM Prize 2019 | Foretia Foundation</a>
+
+            <div class="collapse navbar-collapse" id="navbarSupportedContent">
+            </div>
+        </nav>
+
+        <div class="container-fluid">
+            {% block body %}{% endblock %}
+        </div>
+    </div>
+    <!-- /#page-content-wrapper -->
+
+</div>
+</body>
+
+<script src="{{ url_for('static', filename='js/jquery.min.js') }}"></script>
+<script src="{{ url_for('static', filename='js/popper.min.js') }}"></script>
+<script src="{{ url_for('static', filename='js/bootstrap.min.js') }}"></script>
+<script>
+    $("#menu-toggle").click(function (e) {
+        e.preventDefault();
+        $("#wrapper").toggleClass("toggled");
+    });
+    $("#page-content-wrapper .container-fluid").click(function (e) {
+        if ($("#wrapper").hasClass("toggled")) {
+            $("#wrapper").toggleClass("toggled");
+        }
+    });
+</script>
+{% block scripts %}{% endblock %}
+</html>

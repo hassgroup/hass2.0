@@ -1,0 +1,50 @@
+{% extends "layouts/dashboard.html" %}
+{% block body %}
+    <div class="row pt-5 pl-5 pr-5">
+        <div class="card-deck">
+            <div class="card">
+                <div class="card-header text-center">
+                    Featured
+                </div>
+                <div class="card-img-top text-center">
+                    <img class="mt-2" height="150" src="{{ url_for('static', filename='icons/light-on.png') }}"
+                         alt="...">
+                </div>
+                <div class="card-body">
+                    <h5 class="card-title">Card title</h5>
+                    <p class="card-text">This is a longer card with supporting .</p>
+                    <p class="card-text"><small class="text-muted">Last updated 3 mins ago</small></p>
+                </div>
+            </div>
+            <div class="card">
+                <div class="card-header text-center">
+                    Featured
+                </div>
+                <div class="card-img-top text-center">
+                    <img class="mt-2" height="150" src="{{ url_for('static', filename='icons/light-on.png') }}"
+                         alt="...">
+                </div>
+                <div class="card-body">
+                    <h5 class="card-title">Card title</h5>
+                    <p class="card-text">This is a longer card with supporting .</p>
+                    <p class="card-text"><small class="text-muted">Last updated 3 mins ago</small></p>
+                </div>
+            </div>
+            <div class="card">
+                <div class="card-header text-center">
+                    Featured
+                </div>
+                <div class="card-img-top text-center">
+                    <img class="mt-2" height="150" src="{{ url_for('static', filename='icons/light-on.png') }}"
+                         alt="...">
+                </div>
+                <div class="card-body">
+                    <h5 class="card-title">Card title</h5>
+                    <p class="card-text">This card has supporting text below as a natural lead-in to additional
+                        content.</p>
+                    <p class="card-text"><small class="text-muted">Last updated 3 mins ago</small></p>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}
