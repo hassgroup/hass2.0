@@ -1,29 +1,47 @@
 <!DOCTYPE html>
 <html>
+
 <head>
 	<title>The HASS</title>
 	<link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
 	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/css/materialize.min.css">
 </head>
+
 <body>
-	<div class="navbar-fixed">
+	<!-- <div class="navbar-fixed">
 		<nav class="black">
 			<div class="nav-wrapper">
-				<a style="min-width: 900px!important;" href="#" class="brand-logo center truncate">HASS | Foretia Foundation | Stem Prize 2019</a>
 			</div>
 		</nav>
-	</div>
+	</div> -->
+	<div class="navbar-fixed">
+		<nav class="navbar black">
+			<a style="min-width: 900px!important;" href="#" class="brand-logo center truncate">HASS | Foretia Foundation
+				| Stem Prize 2019</a>
+			<div class="nav-wrapper">
+				<!-- <ul id="nav-mobile" class="right">
+					<li class="hide-on-med-and-down blue-text"><a href="/products/admin">Recent</a></li>
+					<li class="hide-on-med-and-down"><a href="#!" data-target="dropdown1"
+							class="dropdown-trigger waves-effect"><i class="material-icons">notifications</i></a>
+					</li>
+					<li><a href="#!" data-target="chat-dropdown" class="dropdown-trigger waves-effect"><i
+								class="material-icons">settings</i></a></li>
+				</ul><a href="#!" data-target="sidenav-left" class="sidenav-trigger left"><i
+						class="material-icons black-text">menu</i></a> -->
+			</div>
+		</nav>
 
-	{% block body %}
-	<div class="container">
-		<h5 class="alert alert-warning">
-			No content added yet!
-		</h5>
-	</div>
-	{% endblock %}
-	<script type="text/javascript" src="{{ url_for('static', filename='js/jquery.min.js') }} "></script>
-	<script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/js/materialize.min.js"></script>
+		{% block body %}
+		<div class="container">
+			<h5 class="alert alert-warning">
+				No content added yet!
+			</h5>
+		</div>
+		{% endblock %}
+		<script type="text/javascript" src="{{ url_for('static', filename='js/jquery.min.js') }} "></script>
+		<script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/js/materialize.min.js"></script>
 
-	{% block scripts %}{%endblock%}
+		{% block scripts %}{%endblock%}
 </body>
+
 </html>
