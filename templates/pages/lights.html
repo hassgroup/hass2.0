@@ -1,0 +1,97 @@
+{% extends "layouts/dashboard.html" %}
+{% block body %}
+    <div class="row pt-5 pl-5 pr-5">
+        <div class="card-deck">
+            <div class="card">
+                <div class="card-header text-center">
+                    Security Lights
+                </div>
+                <div class="card-img-top text-center">
+                    <img class="mt-2" height="150" src="{{ url_for('static', filename='icons/light-off.png') }}"
+                         alt="...">
+                </div>
+                <div class="card-body text-center">
+                    <input data-loc="no" data-name="s_led" type="checkbox" data-toggle="toggle" data-onstyle="warning" data-offstyle="secondary" data-width="150" data-size="lg">
+                </div>
+            </div>
+            <div class="card">
+                <div class="card-header text-center">
+                    Parlour Lights
+                </div>
+                <div class="card-img-top text-center">
+                    <img class="mt-2" height="150" src="{{ url_for('static', filename='icons/light-off.png') }}"
+                         alt="...">
+                </div>
+                <div class="card-body text-center">
+                    <input data-loc="no" data-name="p_led" type="checkbox" data-toggle="toggle" data-onstyle="warning" data-offstyle="secondary" data-width="150" data-size="lg">
+                </div>
+            </div>
+            <div class="card">
+                <div class="card-header text-center">
+                    Room Lights
+                </div>
+                <div class="card-img-top text-center">
+                    <img class="mt-2" height="150" src="{{ url_for('static', filename='icons/light-off.png') }}"
+                         alt="...">
+                </div>
+                <div class="card-body text-center">
+                    <input data-loc="no" data-name="r_led" type="checkbox" data-toggle="toggle" data-onstyle="warning" data-offstyle="secondary" data-width="150" data-size="lg">
+                    <p class="card-text text-light">This card has supporting text below as a natural lead-in to additional
+                        content.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}
+{% block scripts %}
+<script type="text/javascript">
+
+    $.ajax("{{ url_for('get_devices') }}")
+        .then(data => {
+            for(let key in data) {
+                let elt = $(`[data-name=${key}]:first`);
+                let state = data[key];
+                $(elt).data("loc", "yes");
+                $(elt).bootstrapToggle(state ? "on" : "off");
+            }
+        });
+    $("[data-toggle]").change(function() {
+        let state = $(this).is(":checked");
+        let onImg = "{{ url_for('static', filename='icons/light-on.png') }}";
+        let offImg = "{{ url_for('static', filename='icons/light-off.png') }}";
+
+        let img = $(this).parents(".card:first").find("img:first");
+        if (state) {
+            $(img).attr("src", onImg);
+        } else {
+            $(img).attr("src", offImg);
+        }
+        if ($(this).data('loc') === "no") {
+            let name = $(this).data("name");
+            statusChanged(name, state);   
+        }
+        $(this).data("loc", "no");
+    });
+    // addChangeEvent();
+    // function removeChangeEvent() {
+    //     $("[data-toggle]").unbind("click");
+    // }
+    // function addChangeEvent() {
+        
+    // }
+    if (socket) {
+        socket.on("light_updated", function(data) {
+            let elt = $(`[data-name=${data.name}]:first`);
+            console.log(data);
+            $(elt).data("loc", "yes");
+            $(elt).bootstrapToggle(data.state ? "on" : "off");
+        });
+    }
+    function statusChanged(name, state) {
+        console.log("name: ", name, "state: ", state)
+        if (socket) {
+            socket.emit('light-status-changed', {name, state});
+        }
+    }
+</script>
+{% endblock %}

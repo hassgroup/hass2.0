@@ -1,0 +1,46 @@
+{% extends "layout.html" %}
+{% block body %}
+<div class="container">
+    <div class="row">
+        <div class="col s12 m10 offset-m1" style="padding-top: 150px;">
+            <div class="card">
+                <div class="card-content">
+                    <span class="card-title center-align">SignUp </span>
+                    <form method="post" action="{{ url_for('post_signup') }}">
+                        <div class="row">
+                            <div class="input-field col s12">
+                                <input name="username" id="username" type="text" class="validate" value="Admin">
+                                <label for="username">Username</label>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="input-field col s12">
+                                <input name="email" id="email" type="email" class="validate" value="admin@mail.com">
+                                <label for="email">Email</label>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="input-field col s12">
+                                <input name="password" id="password" type="password" class="validate" value="password">
+                                <label for="password">Password</label>
+                            </div>
+                        </div>
+                        <!-- <div class="row">
+                            <div class="input-field col s12">
+                                <input name="password2" id="pas" type="password" class="validate">
+                                <label for="password">Password</label>
+                            </div>
+                        </div> -->
+
+                        <div class="card-action right-align">
+                            <button type="submit" class="waves-effect waves-light btn"><i
+                                    class="material-icons right">input</i>Sign In</a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% endblock %}

@@ -1,0 +1,15 @@
+{% extends "layouts/dashboard.html" %}
+{% block body %}
+    <div class="row pt-5">
+        test
+    </div>
+{% endblock %}
+{% block scripts %}
+<script>
+    if (socket) {
+        socket.emit('temp-values', function(data) {
+            console.log(data);
+        });
+    }
+</script>
+{% endblock %}
