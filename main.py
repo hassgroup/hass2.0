@@ -46,9 +46,11 @@ pwm.start(0)
 # GPIO.setup(DHT_GPIO, GPIO.IN)
 
 dht = DHT.DHT11
-TEMP_TIME_INTERVAL = 15
-MAX_TEMP_THRESHOLD = 30.0
+TEMP_TIME_INTERVAL = 15 # Time after saving temps to database
+MAX_TEMP_THRESHOLD = 30.0 # Max temp before fan ons
+GET_CONFIG_TIMEOUT = 15 # Timeout after loading database config
 temperature_value = []
+CONFIG = None # Variable to hold configuration
 
 # import json
 
@@ -76,6 +78,15 @@ class Config(db.Model):
     max_temp = db.Column(db.Float, nullable=True)
     temp_auto = db.Column(db.Boolean, default=True)
 
+    @property
+    def serialize(self):
+        return {
+            'id': self.id, 
+            'active': self.active, 
+            'max_temp': self.max_temp,
+            'temp_auto': self.temp_auto,
+        }
+
 class Temperature(db.Model):
     __tablename__ = 'temperatures'
 
@@ -97,12 +108,28 @@ class Temperature(db.Model):
             'time': self.timestamp.strftime("%H:%M:%S"),
             'date': self.timestamp.strftime("%b %d %Y"),
         }
+def get_config():
+    conf = Config.query.filter_by(active=True).first()
+    return conf.serialize
+
+def set_config_thread(timeout=15):
+    global CONFIG
+    times = 1
+    while True:
+        CONFIG = get_config()
+        times += 1
+        print("Getting config %s times..." % times)
+        print(CONFIG)
+        sleep(timeout)
+
 
 def temp_auto(threshold):
     humid, temp = get_temp_humid()
+    config = get_config_thread
     if temp is not None:
         if temp > threshold:
             print("Temperature too much")
+
 
 def store_temp(slp):
     while True:
@@ -112,7 +139,7 @@ def store_temp(slp):
             dt = datetime.now()
             local_dt = tz.localize(dt)
             local_dt.replace(hour=local_dt.hour + int(local_dt.utcoffset().total_seconds() / 3600))
-            #return local_dt.strftime(format)
+            # return local_dt.strftime(format)
             temp = Temperature(temp=temp, humid=humid, timestamp=local_dt)
             db.session.add(temp)
             db.session.commit()
@@ -120,10 +147,6 @@ def store_temp(slp):
             time.sleep(slp)
         else:
             print("Error reading temp. Retrying...")
-
-temp_thread = threading.Thread(name="temp/humid thread", target=store_temp, args=(TEMP_TIME_INTERVAL,))
-temp_thread.setDaemon(True)
-temp_thread.start()
 
 
 def auth(f):
@@ -294,7 +317,7 @@ def open_gate(angle):
     pwm.ChangeDutyCycle(0)
     pwm.stop()
 
-open_gate(90)
+# open_gate(90)
 
 @hass.route("/temp")
 def temp():
@@ -308,4 +331,12 @@ def get_temp_values(count=20):
 
 
 if __name__ == "__main__":
+
+    temp_thread = threading.Thread(name="store_temp thread", target=store_temp, args=(TEMP_TIME_INTERVAL,))
+    temp_thread.setDaemon(True)
+    temp_thread.start()
+
+    conf_thread = threading.Thread(name="load_config thread", target=set_config_thread)
+    conf_thread.setDaemon(True)
+    conf_thread.start()
     socket.run(hass, host='0.0.0.0', port=9000, debug=True)
