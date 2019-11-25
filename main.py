@@ -124,11 +124,18 @@ def set_config_thread(timeout=15):
 
 
 def temp_auto(threshold):
+    global CONFIG
     humid, temp = get_temp_humid()
-    config = get_config_thread
     if temp is not None:
-        if temp > threshold:
-            print("Temperature too much")
+        if CONFIG['temp_auto'] and temp > CONFIG['max_temp']:
+            if not GPIO.input(FAN_PIN):
+                GPIO.output(FAN_PIN, True)
+            print("Condition validated for fan")
+        else:
+            GPIO.output(FAN_PIN, False)
+            print("")
+    else:
+        print("AutoTemp: Sensor not connected or working")
 
 
 def store_temp(slp):
