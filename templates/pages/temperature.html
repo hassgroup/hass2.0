@@ -1,14 +1,116 @@
 {% extends "layouts/dashboard.html" %}
+{% block styles %}
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.8.0/Chart.min.css" />
+{% endblock %}
 {% block body %}
-    <div class="row pt-5">
-        test
+<div class="row pt-5">
+    <div class="container">
+        <div class="card" style="width: auto;">
+            <div class="card-body">
+                <h3 class="card-title text-center">Temperature</h3>
+                <hr>
+                <div class="temp-position">
+                    <canvas id="temperatureChart" width="150" height="80"></canvas>
+                </div>
+            </div>
+        </div>
+        <div class="card mt-5" style="width: auto;">
+            <div class="card-body">
+                <h3 class="card-title text-center">Humidity</h3>
+                <hr>
+                <div class="temp-position">
+                    <canvas id="humidityChart" width="150" height="80"></canvas>
+                </div>
+            </div>
+        </div>
     </div>
+</div>
 {% endblock %}
 {% block scripts %}
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.8.0/Chart.bundle.min.js"></script>
 <script>
+    var ctx = document.getElementById('temperatureChart');
+    var ctx2 = document.getElementById('humidityChart');
+
     if (socket) {
-        socket.emit('temp-values', function(data) {
-            console.log(data);
+        socket.emit('temp-values', 10, function (res) {
+            res = res.sort(function(a, b) {return a.id - b.id});
+            let labels = res.map(d => d.time);
+            let temps = res.map(d => d.temperature);
+            let humids = res.map(d => d.humidity);
+            console.log(res)
+            var myChart = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        label: 'Temp',
+                        data: temps,
+                        backgroundColor: [
+                            'rgba(255, 99, 2, 0.2)',
+                            'rgba(54, 162, 2, 0.2)',
+                            'rgba(255, 206, 2, 0.2)',
+                            'rgba(75, 192, 2, 0.2)',
+                            'rgba(153, 102, 2, 0.2)',
+                            'rgba(255, 159, 2, 0.2)'
+                        ],
+                        borderColor: [
+                            'rgba(255, 3, 132, 1)',
+                            'rgba(54, 3, 235, 1)',
+                            'rgba(255, 3, 86, 1)',
+                            'rgba(75, 3, 192, 1)',
+                            'rgba(153, 3, 255, 1)',
+                            'rgba(255, 3, 64, 1)'
+                        ],
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    scales: {
+                        yAxes: [{
+                            ticks: {
+                                beginAtZero: true
+                            }
+                        }]
+                    }
+                }
+            });
+            var mySecondChart = new Chart(ctx2, {
+                type: 'line',
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        label: 'Humid',
+                        data: humids,
+                        backgroundColor: [
+                            'rgba(25, 99, 132, 0.2)',
+                            'rgba(54, 162, 235, 0.2)',
+                            'rgba(25, 206, 86, 0.2)',
+                            'rgba(75, 192, 192, 0.2)',
+                            'rgba(13, 102, 255, 0.2)',
+                            'rgba(25, 159, 64, 0.2)'
+                        ],
+                        borderColor: [
+                            'rgba(25, 99, 132, 1)',
+                            'rgba(54, 162, 235, 1)',
+                            'rgba(25, 206, 86, 1)',
+                            'rgba(75, 192, 192, 1)',
+                            'rgba(13, 102, 255, 1)',
+                            'rgba(25, 159, 64, 1)'
+                        ],
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    scales: {
+                        yAxes: [{
+                            ticks: {
+                                beginAtZero: true
+                            }
+                        }]
+                    }
+                }
+            });
         });
     }
 </script>

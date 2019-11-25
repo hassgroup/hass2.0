@@ -1,53 +1,55 @@
 {% extends "layouts/dashboard.html" %}
 {% block body %}
-    <div class="row pt-5">
-        <div class="col-lg-4 col-md-4 col-sm-4 col-xs-8 col-xs-offset-2">
-            <a href="{{ url_for('lights') }}">
-                <div class="box-part text-center">
-                    <img src="{{ url_for('static', filename='icons/light.png') }}" alt="Lights">
-                    <div class="title">
-                        <h4><a href="{{ url_for('lights') }}">Lights</a></h4>
-                    </div>
+<div class="row pt-5">
+    <div class="col-lg-4 col-md-4 col-sm-4 col-xs-8 col-xs-offset-2">
+        <a href="{{ url_for('lights') }}">
+            <div class="box-part text-center">
+                <img src="{{ url_for('static', filename='icons/light.png') }}" alt="Lights">
+                <div class="title">
+                    <h4><a href="{{ url_for('lights') }}">Lights</a></h4>
                 </div>
-            </a>
+            </div>
+        </a>
 
-        </div>
-        <div class="col-lg-4 col-md-4 col-sm-4 col-xs-8 col-xs-offset-2">
-            <a href="{{ url_for('lights') }}">
-                <div class="box-part text-center">
-                    <img src="{{ url_for('static', filename='icons/fan.png') }}" alt="Fan">
-                    <div class="title">
-                        <h4><a href="">Air Condition</a></h4>
-                    </div>
+    </div>
+    <div class="col-lg-4 col-md-4 col-sm-4 col-xs-8 col-xs-offset-2">
+        <a href="{{ url_for('air_condition') }}">
+            <div class="box-part text-center">
+                <img src="{{ url_for('static', filename='icons/fan.png') }}" alt="Fan">
+                <div class="title">
+                    <h4><a href="{{ url_for('air_condition') }}">Air Condition</a></h4>
                 </div>
-            </a>
-        </div>
-        <div class="col-lg-4 col-md-4 col-sm-4 col-xs-8 col-xs-offset-2">
+            </div>
+        </a>
+    </div>
+    <div class="col-lg-4 col-md-4 col-sm-4 col-xs-8 col-xs-offset-2">
+        <a href="{{ url_for('gate') }}">
             <div class="box-part text-center">
                 <img src="{{ url_for('static', filename='icons/gate.png') }}" alt="Fan">
                 <div class="title">
-                    <h4><a href="">Gate</a></h4>
+                    <h4><a href="{{ url_for('gate') }}">Gate</a></h4>
                 </div>
             </div>
-        </div>
-        <div class="col-lg-4 col-md-4 col-sm-4 col-xs-8 col-xs-offset-2">
-            <a href="{{ url_for('surveillance') }}">
-                <div class="box-part text-center">
-                    <img src="{{ url_for('static', filename='icons/camera.png') }}" alt="Fan">
-                    <div class="title">
-                        <h4><a href="{{ url_for('surveillance') }}">Camera</a></h4>
-                    </div>
-                </div>
-            </a>
-
-        </div>
-        <div class="col-lg-4 col-md-4 col-sm-4 col-xs-8 col-xs-offset-2">
+        </a>
+    </div>
+    <div class="col-lg-4 col-md-4 col-sm-4 col-xs-8 col-xs-offset-2">
+        <a href="{{ url_for('surveillance') }}">
             <div class="box-part text-center">
-                <img src="{{ url_for('static', filename='icons/temperature.png') }}" alt="Fan">
+                <img src="{{ url_for('static', filename='icons/camera.png') }}" alt="Fan">
                 <div class="title">
-                    <h4><a href="{{ url_for('temperature') }}">Temperature</a></h4>
+                    <h4><a href="{{ url_for('surveillance') }}">Camera</a></h4>
                 </div>
+            </div>
+        </a>
+
+    </div>
+    <div class="col-lg-4 col-md-4 col-sm-4 col-xs-8 col-xs-offset-2">
+        <div class="box-part text-center">
+            <img src="{{ url_for('static', filename='icons/temperature.png') }}" alt="Fan">
+            <div class="title">
+                <h4><a href="{{ url_for('temperature') }}">Temperature</a></h4>
             </div>
         </div>
     </div>
+</div>
 {% endblock %}

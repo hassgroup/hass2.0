@@ -10,9 +10,10 @@ import threading
 import os
 import json
 import time
+from time import sleep
 
 import RPi.GPIO as GPIO
-
+from pytz import timezone
 
 hass = Flask(__name__)
 
@@ -29,6 +30,7 @@ p_led = 18
 r_led = 16
 s_led = 15
 DHT_GPIO = 4
+SERVO_PIN = 3
 
 GPIO.setmode(GPIO.BOARD)
 GPIO.setwarnings(False)
@@ -36,10 +38,23 @@ GPIO.setwarnings(False)
 GPIO.setup(p_led, GPIO.OUT)
 GPIO.setup(r_led, GPIO.OUT)
 GPIO.setup(s_led, GPIO.OUT)
+GPIO.setup(SERVO_PIN, GPIO.OUT)
+
+pwm=GPIO.PWM(SERVO_PIN, 50)
+pwm.start(0)
+
 # GPIO.setup(DHT_GPIO, GPIO.IN)
 
 dht = DHT.DHT11
 TEMP_TIME_INTERVAL = 15
+MAX_TEMP_THRESHOLD = 30.0
+temperature_value = []
+
+# import json
+
+# class Object:
+#     def toJSON(self):
+#         return json.dumps(self, default=lambda o: o.__dict__, sort_keys=True, indent=4)
 
 class User(db.Model):
     __tablename__ = 'users'
@@ -53,7 +68,13 @@ class User(db.Model):
     def __repr__(self):
         return '<User %r>' % self.username
 
+class Config(db.Model):
+    __tablename__ = 'config'
 
+    id = db.Column(db.Integer, primary_key=True)
+    active = db.Column(db.Boolean, default=True)
+    max_temp = db.Column(db.Float, nullable=True)
+    temp_auto = db.Column(db.Boolean, default=True)
 
 class Temperature(db.Model):
     __tablename__ = 'temperatures'
@@ -61,17 +82,38 @@ class Temperature(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     temp = db.Column(db.String(80), nullable=False)
     humid = db.Column(db.String(120), nullable=False)
-    timestamp = db.Column(db.DateTime, default=datetime.utcnow)
+    timestamp = db.Column(db.DateTime, default=datetime.now)
 
     def __repr__(self):
         return '<Temp %r, %r>' % (self.temp, self.humid)
+    
+    @property
+    def serialize(self):
+        return {
+            'id': self.id, 
+            'temperature': self.temp, 
+            'humidity': self.humid, 
+            'timestamp': self.timestamp.strftime("%b %d %Y %H:%M:%S"),
+            'time': self.timestamp.strftime("%H:%M:%S"),
+            'date': self.timestamp.strftime("%b %d %Y"),
+        }
 
+def temp_auto(threshold):
+    humid, temp = get_temp_humid()
+    if temp is not None:
+        if temp > threshold:
+            print("Temperature too much")
 
 def store_temp(slp):
     while True:
         humid, temp = DHT.read_retry(dht, DHT_GPIO, 5)
         if humid is not None and temp is not None:
-            temp = Temperature(temp=temp, humid=humid)
+            tz = timezone("Africa/Douala")
+            dt = datetime.now()
+            local_dt = tz.localize(dt)
+            local_dt.replace(hour=local_dt.hour + int(local_dt.utcoffset().total_seconds() / 3600))
+            #return local_dt.strftime(format)
+            temp = Temperature(temp=temp, humid=humid, timestamp=local_dt)
             db.session.add(temp)
             db.session.commit()
             print("Storing background temp: %s/humid: %s" % (temp.temp, temp.humid))
@@ -176,6 +218,14 @@ def dashboard():
 def surveillance():
     return render_template("pages/camera.html")
 
+@hass.route("/air-condition")
+def air_condition():
+    return render_template("pages/air-condition.html")
+
+@hass.route("/gate")
+def gate():
+    return render_template("pages/gate.html")
+
 def update_devices(key, value):
     content = read_devices_status()
     print(content)
@@ -235,6 +285,16 @@ def get_temp_humid():
         return temp, humid
     return None, None
 
+def open_gate(angle):
+    duty = angle / 18 + 2
+    GPIO.output(SERVO_PIN, True)
+    pwm.ChangeDutyCycle(duty)
+    sleep(1)
+    GPIO.output(SERVO_PIN, False)
+    pwm.ChangeDutyCycle(0)
+    pwm.stop()
+
+open_gate(90)
 
 @hass.route("/temp")
 def temp():
@@ -243,11 +303,8 @@ def temp():
 
 @socket.on("temp-values")
 def get_temp_values(count=20):
-    query = Temperature.query.limit(count).all()
-    # print(query)
-    for rep in query:
-        print(rep)
-    # return jsonify(query)     
+    query = Temperature.query.order_by(Temperature.id.desc()).limit(count)
+    return [temp.serialize for temp in query.all()]
 
 
 if __name__ == "__main__":
