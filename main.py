@@ -10,6 +10,7 @@ import threading
 import os
 import json
 import time
+import socket as sock
 from time import sleep
 
 import RPi.GPIO as GPIO
@@ -31,6 +32,7 @@ r_led = 16
 s_led = 15
 DHT_GPIO = 4
 SERVO_PIN = 3
+FAN_PIN = 11
 
 GPIO.setmode(GPIO.BOARD)
 GPIO.setwarnings(False)
@@ -38,6 +40,7 @@ GPIO.setwarnings(False)
 GPIO.setup(p_led, GPIO.OUT)
 GPIO.setup(r_led, GPIO.OUT)
 GPIO.setup(s_led, GPIO.OUT)
+GPIO.setup(FAN_PIN, GPIO.OUT)
 GPIO.setup(SERVO_PIN, GPIO.OUT)
 
 pwm=GPIO.PWM(SERVO_PIN, 50)
@@ -46,8 +49,8 @@ pwm.start(0)
 # GPIO.setup(DHT_GPIO, GPIO.IN)
 
 dht = DHT.DHT11
-TEMP_TIME_INTERVAL = 15 # Time after saving temps to database
-MAX_TEMP_THRESHOLD = 30.0 # Max temp before fan ons
+TEMP_TIME_INTERVAL = 15 # Time (in seconds) after saving temps to database
+# MAX_TEMP_THRESHOLD = 30.0 # Max temp before fan ons. Loaded from database
 GET_CONFIG_TIMEOUT = 15 # Timeout after loading database config
 temperature_value = []
 CONFIG = None # Variable to hold configuration
@@ -96,7 +99,7 @@ class Temperature(db.Model):
     timestamp = db.Column(db.DateTime, default=datetime.now)
 
     def __repr__(self):
-        return '<Temp %r, %r>' % (self.temp, self.humid)
+        return '<Temp: %r, Humid: %r>' % (self.temp, self.humid)
     
     @property
     def serialize(self):
@@ -108,9 +111,29 @@ class Temperature(db.Model):
             'time': self.timestamp.strftime("%H:%M:%S"),
             'date': self.timestamp.strftime("%b %d %Y"),
         }
+
+def get_ip_address():
+    ip_address = '';
+    s = sock.socket(sock.AF_INET, sock.SOCK_DGRAM)
+    s.connect(("8.8.8.8",80))
+    ip_address = s.getsockname()[0]
+    s.close()
+    return ip_address
+
 def get_config():
     conf = Config.query.filter_by(active=True).first()
     return conf.serialize
+
+
+@hass.route("/settings", methods=['GET', 'POST'])
+def settings():
+    if request.method == 'POST':
+        data = request.form
+        print(data)
+        return jsonify({'status': True})
+    else:
+        return render_template("pages/settings.html", config=get_config())
+
 
 def set_config_thread(timeout=15):
     global CONFIG
@@ -123,19 +146,22 @@ def set_config_thread(timeout=15):
         sleep(timeout)
 
 
-def temp_auto(threshold):
+def temp_auto():
     global CONFIG
-    humid, temp = get_temp_humid()
-    if temp is not None:
-        if CONFIG['temp_auto'] and temp > CONFIG['max_temp']:
-            if not GPIO.input(FAN_PIN):
-                GPIO.output(FAN_PIN, True)
-            print("Condition validated for fan")
+    while True:
+        humid, temp = get_temp_humid()
+        if temp is not None:
+            if CONFIG['temp_auto'] and temp > CONFIG['max_temp']:
+                if not GPIO.input(FAN_PIN):
+                    GPIO.output(FAN_PIN, True)
+                    print("Auto Fan Validated. Fan On")
+                else: print("Auto Fan Validated. Fan Off")
+            else:
+                GPIO.output(FAN_PIN, False)
+                print("Auto Fan NOT Validated.")
         else:
-            GPIO.output(FAN_PIN, False)
-            print("")
-    else:
-        print("AutoTemp: Sensor not connected or working")
+            print("Auto Fan: Sensor not responding")
+        sleep(30)
 
 
 def store_temp(slp):
@@ -246,7 +272,7 @@ def dashboard():
 
 @hass.route("/stream")
 def surveillance():
-    return render_template("pages/camera.html")
+    return render_template("pages/camera.html", ip=get_ip_address())
 
 @hass.route("/air-condition")
 def air_condition():
@@ -339,11 +365,15 @@ def get_temp_values(count=20):
 
 if __name__ == "__main__":
 
+    conf_thread = threading.Thread(name="load_config thread", target=set_config_thread)
+    conf_thread.setDaemon(True)
+    conf_thread.start()
+
     temp_thread = threading.Thread(name="store_temp thread", target=store_temp, args=(TEMP_TIME_INTERVAL,))
     temp_thread.setDaemon(True)
     temp_thread.start()
 
-    conf_thread = threading.Thread(name="load_config thread", target=set_config_thread)
-    conf_thread.setDaemon(True)
-    conf_thread.start()
+    fan_auto_thread = threading.Thread(name="auto_fan thread", target=temp_auto)
+    fan_auto_thread.setDaemon(True)
+    fan_auto_thread.start()
     socket.run(hass, host='0.0.0.0', port=9000, debug=True)

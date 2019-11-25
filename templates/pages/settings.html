@@ -1,0 +1,25 @@
+{% extends "layouts/dashboard.html" %}
+{% block body %}
+<div class="row pt-5 pl-5 pr-5">
+    {{ config }}
+    <div class="col-md-12">
+        <div class="col-md-6"></div>
+    </div>
+    <div class="card">
+        <div class="card-header">
+            Set Maximum Temperature
+        </div>
+        <div class="card-body">
+            <form action="{{ url_for('settings') }}" method="POST">
+                <div class="input-group mb-3">
+                    <input type="text" class="form-control" placeholder="Recipient's username"
+                        aria-label="Recipient's username" aria-describedby="button-addon2">
+                    <div class="input-group-append">
+                        <button class="btn btn-outline-secondary" type="button" id="button-addon2">Button</button>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}
