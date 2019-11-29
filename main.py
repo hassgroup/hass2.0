@@ -42,6 +42,7 @@ GPIO.setup(r_led, GPIO.OUT)
 GPIO.setup(s_led, GPIO.OUT)
 GPIO.setup(FAN_PIN, GPIO.OUT)
 GPIO.setup(SERVO_PIN, GPIO.OUT)
+GPIO.output(FAN_PIN, True)
 
 pwm=GPIO.PWM(SERVO_PIN, 50)
 pwm.start(0)
@@ -156,20 +157,23 @@ def temp_auto():
     while True:
         humid, temp = get_temp_humid()
         if temp is not None:
-            if CONFIG['temp_auto'] and temp > CONFIG['max_temp']:
-                if not GPIO.input(FAN_PIN):
-                    GPIO.output(FAN_PIN, True)
-                    print("Auto Fan Validated. Fan On")
-                else: print("Auto Fan Validated. Fan Off")
-            else:
-                GPIO.output(FAN_PIN, False)
-                print("Auto Fan NOT Validated.")
+            if CONFIG['temp_auto']:
+                if temp > CONFIG['max_temp']:
+                    if GPIO.input(FAN_PIN) == False:
+                        GPIO.output(FAN_PIN, True)
+                        print("Auto Fan Validated. Fan On")
+                    else: 
+                        print("Auto Fan Validated. Fan already running")
+                else:
+                    GPIO.output(FAN_PIN, False)
+                    print("Auto Fan NOT Validated.")
         else:
             print("Auto Fan: Sensor not responding")
         sleep(30)
 
 
 def store_temp(slp):
+    global socket
     while True:
         humid, temp = DHT.read_retry(dht, DHT_GPIO, 5)
         if humid is not None and temp is not None:
@@ -178,14 +182,19 @@ def store_temp(slp):
             local_dt = tz.localize(dt)
             local_dt.replace(hour=local_dt.hour + int(local_dt.utcoffset().total_seconds() / 3600))
             # return local_dt.strftime(format)
-            temp = Temperature(temp=temp, humid=humid, timestamp=local_dt)
-            db.session.add(temp)
+            store = Temperature(temp=temp, humid=humid, timestamp=local_dt)
+            db.session.add(store)
             db.session.commit()
-            print("Storing background temp: %s/humid: %s" % (temp.temp, temp.humid))
+            print("Storing background temp: %s/humid: %s" % (temp, humid))
             time.sleep(slp)
         else:
             print("Error reading temp. Retrying...")
 
+@socket.on("temp_update")
+def realtimeTemp():
+    print("Updating temperature....")
+    humid, temp = get_temp_humid()
+    emit("temp_update", {temp: temp, humid: humid})
 
 def auth(f):
     @wraps(f)

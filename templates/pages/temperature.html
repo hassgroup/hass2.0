@@ -33,11 +33,12 @@
     var ctx2 = document.getElementById('humidityChart');
 
     if (socket) {
+        let labels, temps, humids;
         socket.emit('temp-values', 10, function (res) {
-            res = res.sort(function(a, b) {return a.id - b.id});
-            let labels = res.map(d => d.time);
-            let temps = res.map(d => d.temperature);
-            let humids = res.map(d => d.humidity);
+            res = res.sort(function (a, b) { return a.id - b.id });
+            labels = res.map(d => d.time);
+            temps = res.map(d => d.temperature);
+            humids = res.map(d => d.humidity);
             console.log(res)
             var myChart = new Chart(ctx, {
                 type: 'line',
@@ -112,6 +113,31 @@
                 }
             });
         });
+        setInterval(() => {
+            socket.emit('temp_update')
+        }, 1000);
+        socket.on('temp_update', function(data) {
+            console.log('new updates')
+            console.log(data);
+        });
     }
+    
+    function addData(chart, label, data) {
+        chart.data.labels.push(label);
+        chart.data.datasets.forEach((dataset) => {
+            dataset.data.push(data);
+        });
+        chart.update();
+    }
+
+    function removeData(chart) {
+        chart.data.labels.pop();
+        chart.data.datasets.forEach((dataset) => {
+            dataset.data.pop();
+        });
+        chart.update();
+    }
+
+
 </script>
 {% endblock %}
