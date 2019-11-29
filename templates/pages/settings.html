@@ -1,25 +1,55 @@
 {% extends "layouts/dashboard.html" %}
 {% block body %}
-<div class="row pt-5 pl-5 pr-5">
-    {{ config }}
-    <div class="col-md-12">
-        <div class="col-md-6"></div>
-    </div>
-    <div class="card">
-        <div class="card-header">
-            Set Maximum Temperature
-        </div>
-        <div class="card-body">
-            <form action="{{ url_for('settings') }}" method="POST">
-                <div class="input-group mb-3">
-                    <input type="text" class="form-control" placeholder="Recipient's username"
-                        aria-label="Recipient's username" aria-describedby="button-addon2">
-                    <div class="input-group-append">
-                        <button class="btn btn-outline-secondary" type="button" id="button-addon2">Button</button>
-                    </div>
+<div class=" pt-5">
+    <div class="row">
+        <div class="col-md-5">
+            <div class="card">
+                <div class="card-header">
+                    Set Maximum Temperature
                 </div>
-            </form>
+                <div class="card-body">
+                    <form action="{{ url_for('settings') }}" method="POST">
+                        <div class="input-group mb-3">
+                            <input name="max_temp" type="text" value="{{ config.max_temp }}" class="form-control"
+                                placeholder="Recipient's username" aria-label="Maximum Temperature"
+                                aria-describedby="button-addon2">
+                            <div class="input-group-append">
+                                <span class="input-group-text">degree(s)</span>
+                                <button class="btn btn-outline-secondary" type="submit"
+                                    id="button-addon2">Update</button>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-5">
+            <div class="card">
+                <div class="card-header">
+                    Automatic Fan Control
+                </div>
+                <div class="card-body">
+                    <form action="{{ url_for('settings') }}" method="POST">
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <input type="hidden" name="temp_auto">
+                                    <input type="checkbox" {% if config['temp_auto'] %}checked{% endif %} name="temp_auto_value" data-toggle="toggle" data-size="md">
+                                </div>
+                            </div>
+                            <div class="col-md-6 pull-right float-right">
+                                <button class="btn btn-outline-secondary" type="submit"
+                                    id="button-addon2">Update</button>
+
+                            </div>
+                        </div>
+
+
+                    </form>
+                </div>
+            </div>
         </div>
     </div>
+
 </div>
 {% endblock %}

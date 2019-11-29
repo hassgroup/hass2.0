@@ -129,10 +129,15 @@ def get_config():
 def settings():
     if request.method == 'POST':
         data = request.form
-        print(data)
-        return jsonify({'status': True})
-    else:
-        return render_template("pages/settings.html", config=get_config())
+        conf = Config.query.filter_by(active=True).first()
+        for attr in data:
+            if attr == 'temp_auto':
+                setattr(conf, attr, data.has_key('temp_auto_value'))
+            else: setattr(conf, attr, data.get(attr))
+        db.session.commit()
+        flash("Configuration resource updated", "sucess")
+    
+    return render_template("pages/settings.html", config=get_config())
 
 
 def set_config_thread(timeout=15):
